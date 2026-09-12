@@ -1,0 +1,1095 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f5f1eb">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>Invitation de Mariage</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --ivory:#f5f1eb;
+      --blue:#183b63;
+      --blue-soft:#2d557e;
+      --text:#18324d;
+      --white:#fff;
+    }
+
+    *{box-sizing:border-box;margin:0;padding:0}
+
+    html{
+      background:var(--ivory);
+      scroll-behavior:smooth;
+      -webkit-text-size-adjust:100%;
+    }
+
+    body{
+      min-height:100%;
+      overflow-x:hidden;
+      background:var(--ivory);
+      color:var(--text);
+      font-family:"Montserrat",sans-serif;
+      -webkit-font-smoothing:antialiased;
+    }
+
+    button,input,select,textarea{font:inherit}
+
+    /* =========================
+       COVER
+    ========================= */
+    #cover{
+      position:fixed;
+      inset:0;
+      z-index:1000;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:var(--ivory);
+      cursor:pointer;
+      overflow:hidden;
+      opacity:1;
+      visibility:visible;
+      transition:
+        opacity 1.25s cubic-bezier(.22,.61,.36,1),
+        transform 1.45s cubic-bezier(.22,.61,.36,1),
+        visibility 0s linear 1.45s;
+    }
+
+    #cover.is-opening{
+      opacity:0;
+      transform:scale(1.035);
+      pointer-events:none;
+      visibility:hidden;
+    }
+
+    #cover img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      object-position:center;
+      display:block;
+      user-select:none;
+      -webkit-user-drag:none;
+      transform:scale(1);
+      transition:transform 1.5s cubic-bezier(.22,.61,.36,1);
+    }
+
+    #cover.is-opening img{
+      transform:scale(1.035);
+    }
+
+    /* Blue butterflies released when the cover is tapped */
+    .butterfly-burst{
+      position:fixed;
+      left:0;
+      top:0;
+      width:0;
+      height:0;
+      z-index:1100;
+      pointer-events:none;
+    }
+
+    .butterfly{
+      position:absolute;
+      width:28px;
+      height:24px;
+      transform:translate(-50%,-50%) rotate(var(--r));
+      animation:butterflyFly var(--d) cubic-bezier(.18,.72,.22,1) forwards;
+      will-change:transform,opacity;
+      filter:drop-shadow(0 3px 5px rgba(24,59,99,.16));
+    }
+
+    .butterfly::before,
+    .butterfly::after{
+      content:"";
+      position:absolute;
+      top:3px;
+      width:13px;
+      height:18px;
+      background:linear-gradient(145deg,#4c9be8,#183b63);
+      border:1px solid rgba(255,255,255,.38);
+    }
+
+    .butterfly::before{
+      left:1px;
+      border-radius:85% 20% 70% 35%;
+      transform:rotate(24deg);
+    }
+
+    .butterfly::after{
+      right:1px;
+      border-radius:20% 85% 35% 70%;
+      transform:rotate(-24deg);
+    }
+
+    .butterfly .body{
+      position:absolute;
+      left:50%;
+      top:4px;
+      width:3px;
+      height:17px;
+      border-radius:50%;
+      background:#102f50;
+      transform:translateX(-50%);
+      z-index:2;
+    }
+
+    .butterfly .body::before,
+    .butterfly .body::after{
+      content:"";
+      position:absolute;
+      width:8px;
+      height:5px;
+      border-top:1px solid #183b63;
+      top:-3px;
+    }
+
+    .butterfly .body::before{
+      right:1px;
+      transform:rotate(25deg);
+    }
+
+    .butterfly .body::after{
+      left:1px;
+      transform:rotate(-25deg);
+    }
+
+    @keyframes butterflyFly{
+      0%{
+        opacity:0;
+        transform:translate(-50%,-50%) translate(0,0) scale(.45) rotate(var(--r));
+      }
+      10%{opacity:1}
+      55%{opacity:.95}
+      100%{
+        opacity:0;
+        transform:translate(-50%,-50%) translate(var(--x),var(--y)) scale(1) rotate(calc(var(--r) + 22deg));
+      }
+    }
+
+    .cover-hint{
+      position:absolute;
+      bottom:max(30px,env(safe-area-inset-bottom));
+      left:50%;
+      transform:translateX(-50%);
+      color:var(--blue);
+      font-size:11px;
+      letter-spacing:.18em;
+      text-transform:uppercase;
+      opacity:.9;
+      pointer-events:none;
+    }
+
+    /* =========================
+       INVITATION
+    ========================= */
+    #invitation{
+      width:100%;
+      opacity:0;
+      transform:translateY(12px);
+      transition:
+        opacity 1.1s ease,
+        transform 1.1s cubic-bezier(.22,.61,.36,1);
+    }
+
+    #invitation.is-visible{
+      opacity:1;
+      transform:translateY(0);
+    }
+
+    .main-image-section{
+      width:100%;
+      background:var(--ivory);
+      overflow:hidden;
+    }
+
+    .main-image{
+      width:100%;
+      height:auto;
+      display:block;
+      object-fit:contain;
+    }
+
+    /* =========================
+       MUSIC CONTROL
+    ========================= */
+    #musicControl{
+      position:fixed;
+      top:max(16px,env(safe-area-inset-top));
+      right:max(16px,env(safe-area-inset-right));
+      z-index:900;
+      width:58px;
+      height:58px;
+      padding:0;
+      border:0;
+      border-radius:50%;
+      background:transparent;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      cursor:pointer;
+      -webkit-tap-highlight-color:transparent;
+      touch-action:manipulation;
+      box-shadow:none;
+    }
+
+    #musicControl.visible{display:flex}
+
+    #musicControl.playing{
+      animation:musicPulse 2.2s ease-in-out infinite;
+    }
+
+    #musicControl img{
+      width:100%;
+      height:100%;
+      display:block;
+      object-fit:contain;
+      pointer-events:none;
+      user-select:none;
+      -webkit-user-drag:none;
+    }
+
+    @keyframes musicPulse{
+      0%,100%{box-shadow:0 5px 20px rgba(24,59,99,.12)}
+      50%{box-shadow:0 5px 25px rgba(24,59,99,.28)}
+    }
+
+    /* =========================
+       COUNTDOWN
+    ========================= */
+    .countdown-section{
+      position:relative;
+      width:100%;
+      padding:72px 18px 76px;
+      background:
+        radial-gradient(circle at 50% 0%,rgba(45,85,126,.07),transparent 38%),
+        var(--ivory);
+      text-align:center;
+      overflow:hidden;
+    }
+
+    .countdown-inner{
+      width:min(560px,100%);
+      margin:auto;
+    }
+
+    .section-kicker{
+      font-family:"Cormorant Garamond",serif;
+      color:var(--blue);
+      font-size:18px;
+      letter-spacing:.2em;
+      text-transform:uppercase;
+      margin-bottom:7px;
+    }
+
+    .countdown-title{
+      font-family:"Cormorant Garamond",serif;
+      color:var(--blue);
+      font-size:clamp(31px,8vw,46px);
+      font-weight:500;
+      letter-spacing:.04em;
+      margin-bottom:10px;
+    }
+
+    .countdown-date{
+      color:var(--blue-soft);
+      font-size:12px;
+      letter-spacing:.14em;
+      margin-bottom:32px;
+      text-transform:uppercase;
+    }
+
+    .timer{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:9px;
+      direction:ltr;
+    }
+
+    .timer-box{
+      width:clamp(68px,18vw,108px);
+      aspect-ratio:1;
+      margin:auto;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      border:1.5px solid rgba(24,59,99,.34);
+      border-radius:50%;
+      background:rgba(255,255,255,.42);
+      box-shadow:0 8px 24px rgba(24,59,99,.07);
+      position:relative;
+    }
+
+    .timer-box::before{
+      content:"";
+      position:absolute;
+      inset:5px;
+      border:1px solid rgba(24,59,99,.12);
+      border-radius:50%;
+      pointer-events:none;
+    }
+
+    .timer-number{
+      font-family:"Cormorant Garamond",serif;
+      color:var(--blue);
+      font-size:clamp(28px,8vw,44px);
+      line-height:1;
+      font-weight:600;
+    }
+
+    .timer-label{
+      margin-top:8px;
+      color:var(--blue-soft);
+      font-size:9px;
+      letter-spacing:.12em;
+      text-transform:uppercase;
+    }
+
+
+    /* =========================
+       LOCATION
+    ========================= */
+    .location-section{
+      width:100%;
+      padding:18px 18px 72px;
+      background:var(--ivory);
+      text-align:center;
+    }
+
+    .location-card{
+      width:min(620px,100%);
+      margin:auto;
+      padding:22px 16px 34px;
+      border:1px solid rgba(24,59,99,.16);
+      border-radius:30px;
+      background:rgba(255,255,255,.42);
+      box-shadow:0 12px 35px rgba(24,59,99,.08);
+      overflow:hidden;
+    }
+
+    .location-venue-image{
+      display:block;
+      width:100%;
+      height:auto;
+      aspect-ratio:1100/529;
+      object-fit:cover;
+      object-position:center;
+      border-radius:22px;
+      margin:0 auto 26px;
+      box-shadow:0 10px 28px rgba(24,59,99,.12);
+    }
+
+    .location-icon{
+      width:50px;
+      height:50px;
+      margin:0 auto 14px;
+      color:var(--blue);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      border-radius:50%;
+      background:rgba(24,59,99,.07);
+    }
+
+    .location-icon svg{
+      width:28px;
+      height:28px;
+      fill:none;
+      stroke:currentColor;
+      stroke-width:1.6;
+      stroke-linecap:round;
+      stroke-linejoin:round;
+    }
+
+    .location-title{
+      font-family:"Cormorant Garamond",serif;
+      color:var(--blue);
+      font-size:clamp(29px,7vw,40px);
+      font-weight:500;
+      line-height:1.15;
+      margin-bottom:10px;
+    }
+
+    .location-stars{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:4px;
+      margin:10px 0 10px;
+      line-height:1;
+    }
+
+    .location-stars svg{
+      width:24px;
+      height:24px;
+      display:block;
+      overflow:visible;
+    }
+
+    .location-stars .star-fill{
+      fill:#d5ad55;
+      stroke:#b58a35;
+      stroke-width:1;
+      stroke-linejoin:round;
+    }
+
+    .location-stars .star-half-base{
+      fill:#e7e9ec;
+      stroke:#b9bec5;
+      stroke-width:1;
+      stroke-linejoin:round;
+    }
+
+    .location-stars .star-half-fill{
+      fill:#d5ad55;
+      stroke:none;
+    }
+
+    .location-rating{
+      color:var(--blue-soft);
+      font-size:11px;
+      letter-spacing:.10em;
+      margin-bottom:24px;
+    }
+
+    .location-btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:12px;
+      min-width:230px;
+      padding:12px 16px 12px 20px;
+      border:1px solid rgba(255,255,255,.28);
+      border-radius:999px;
+      background:var(--blue);
+      color:#fff;
+      text-decoration:none;
+      font-size:12px;
+      letter-spacing:.06em;
+      box-shadow:0 8px 20px rgba(24,59,99,.16);
+      transition:transform .2s,opacity .2s;
+      -webkit-tap-highlight-color:transparent;
+      touch-action:manipulation;
+    }
+
+    .location-btn-icon{
+      width:34px;
+      height:34px;
+      flex:0 0 34px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      border-radius:50%;
+      background:rgba(255,255,255,.16);
+      border:1px solid rgba(255,255,255,.20);
+    }
+
+    .location-btn-icon svg{
+      width:17px;
+      height:17px;
+      fill:none;
+      stroke:#fff;
+      stroke-width:1.8;
+      stroke-linecap:round;
+      stroke-linejoin:round;
+    }
+
+    .location-btn:active{transform:scale(.985)}
+
+    /* =========================
+       NO PHOTOS / CHILDREN IMAGE
+    ========================= */
+    .request-section{
+      width:100%;
+      padding:20px 0 72px;
+      background:var(--ivory);
+      overflow:hidden;
+    }
+
+    .request-image-wrap{
+      width:100%;
+      margin:0 auto;
+      background:var(--ivory);
+    }
+
+    .request-image{
+      display:block;
+      width:100%;
+      height:auto;
+      object-fit:contain;
+    }
+
+    .request-card{
+      width:min(650px,100%);
+      margin:auto;
+      padding:52px 24px;
+      border:1px solid rgba(24,59,99,.22);
+      text-align:center;
+      background:rgba(255,255,255,.3);
+    }
+
+    .request-item + .request-item{
+      margin-top:45px;
+    }
+
+    .request-icon{
+      width:58px;
+      height:58px;
+      margin:0 auto 17px;
+      color:var(--blue);
+    }
+
+    .request-icon svg{
+      width:100%;
+      height:100%;
+      fill:none;
+      stroke:currentColor;
+      stroke-width:1.45;
+      stroke-linecap:round;
+      stroke-linejoin:round;
+    }
+
+    .request-title{
+      font-family:"Cormorant Garamond",serif;
+      color:var(--blue);
+      font-size:31px;
+      font-weight:600;
+      margin-bottom:10px;
+    }
+
+    .request-text{
+      max-width:470px;
+      margin:auto;
+      color:#4d6175;
+      font-size:12px;
+      line-height:1.9;
+    }
+
+    /* =========================
+       RSVP
+    ========================= */
+    .rsvp-section{
+      width:100%;
+      padding:20px 18px 90px;
+      background:var(--ivory);
+    }
+
+    .rsvp-card{
+      width:min(620px,100%);
+      margin:auto;
+      padding:48px 22px;
+      border:1px solid rgba(24,59,99,.22);
+      background:rgba(255,255,255,.35);
+    }
+
+    .rsvp-heading{
+      text-align:center;
+      margin-bottom:30px;
+    }
+
+    .rsvp-title{
+      font-family:"Cormorant Garamond",serif;
+      color:var(--blue);
+      font-size:42px;
+      font-weight:500;
+    }
+
+    .rsvp-subtitle{
+      margin-top:7px;
+      color:var(--blue-soft);
+      font-size:11px;
+      letter-spacing:.08em;
+    }
+
+    .field{margin-bottom:17px}
+
+    .field label{
+      display:block;
+      margin-bottom:7px;
+      color:var(--blue);
+      font-size:11px;
+      letter-spacing:.04em;
+    }
+
+    .field input,
+    .field select,
+    .field textarea{
+      width:100%;
+      border:1px solid rgba(24,59,99,.25);
+      border-radius:0;
+      outline:none;
+      background:rgba(255,255,255,.65);
+      color:var(--text);
+      padding:13px 14px;
+      font-size:13px;
+      transition:border-color .25s,box-shadow .25s;
+    }
+
+    .field textarea{
+      min-height:120px;
+      resize:vertical;
+    }
+
+    .field input:focus,
+    .field select:focus,
+    .field textarea:focus{
+      border-color:var(--blue);
+      box-shadow:0 0 0 3px rgba(24,59,99,.07);
+    }
+
+    .submit-btn{
+      width:100%;
+      margin-top:7px;
+      padding:14px;
+      border:1px solid var(--blue);
+      background:var(--blue);
+      color:#fff;
+      cursor:pointer;
+      letter-spacing:.06em;
+      transition:transform .2s,opacity .2s;
+    }
+
+    .submit-btn:active{transform:scale(.985)}
+    .submit-btn:disabled{opacity:.55}
+
+    #rsvpMessage{
+      min-height:20px;
+      margin-top:15px;
+      text-align:center;
+      color:var(--blue);
+      font-size:12px;
+    }
+
+    /* =========================
+       MOBILE SAFARI
+    ========================= */
+    @media (max-width:600px){
+      .timer{gap:6px}
+      .timer-label{font-size:8px}
+      .timer-box{width:clamp(64px,19vw,88px)}
+      .rsvp-card{padding:40px 17px}
+    }
+
+    @media (prefers-reduced-motion:reduce){
+      *,*::before,*::after{
+        animation-duration:.01ms!important;
+        animation-iteration-count:1!important;
+        scroll-behavior:auto!important;
+        transition-duration:.01ms!important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- =========================
+       COVER
+  ========================= -->
+  <div id="cover" role="button" aria-label="Ouvrir l'invitation">
+    <img
+      id="coverImage"
+      src="cover.jpg"
+      alt="Invitation de mariage"
+      fetchpriority="high"
+      onerror="this.style.display='none'; document.getElementById('coverFallback').style.display='flex';">
+    <div id="coverFallback" style="display:none;position:absolute;inset:0;align-items:center;justify-content:center;text-align:center;color:#183b63;font-family:'Cormorant Garamond',serif;font-size:20px;padding:30px;">
+      ضع ملف <strong>cover.jpg</strong> بجانب index.html
+    </div>
+    <div class="cover-hint">Appuyez pour ouvrir</div>
+  </div>
+
+  <!-- MUSIC -->
+  <audio id="backgroundMusic" src="music.mp3" preload="auto" loop></audio>
+
+  <!-- MUSIC CONTROL -->
+  <button id="musicControl" type="button" aria-label="Musique">
+    <img src="music-icon.png" alt="Musique">
+  </button>
+
+  <!-- =========================
+       INVITATION
+  ========================= -->
+  <main id="invitation">
+
+    <!-- 1. LONG MAIN IMAGE -->
+    <section class="main-image-section">
+      <img class="main-image" src="main.jpg" alt="Invitation de mariage">
+    </section>
+
+    <!-- 2. COUNTDOWN -->
+    <section class="countdown-section">
+      <div class="countdown-inner">
+        <div class="section-kicker">Le grand jour</div>
+        <h1 class="countdown-title">Compte à rebours</h1>
+        <div class="countdown-date">24 septembre 2026 · 17:00</div>
+
+        <div class="timer" aria-label="Compte à rebours">
+          <div class="timer-box">
+            <div class="timer-number" id="days">00</div>
+            <div class="timer-label">Jours</div>
+          </div>
+          <div class="timer-box">
+            <div class="timer-number" id="hours">00</div>
+            <div class="timer-label">Heures</div>
+          </div>
+          <div class="timer-box">
+            <div class="timer-number" id="minutes">00</div>
+            <div class="timer-label">Minutes</div>
+          </div>
+          <div class="timer-box">
+            <div class="timer-number" id="seconds">00</div>
+            <div class="timer-label">Secondes</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+
+    <!-- 3. LOCATION -->
+    <section class="location-section">
+      <div class="location-card">
+
+        <img
+          class="location-venue-image"
+          src="venue-hall.jpg"
+          alt="Salle de fêtes Catherine (El Djenane)"
+          loading="lazy"
+          decoding="async"
+        >
+
+        <div class="location-icon" aria-hidden="true">
+          <svg viewBox="0 0 48 48">
+            <path d="M24 43s14-13.1 14-24A14 14 0 1 0 10 19c0 10.9 14 24 14 24Z"/>
+            <circle cx="24" cy="19" r="4.5"/>
+          </svg>
+        </div>
+
+        <div class="section-kicker">Le lieu</div>
+        <h2 class="location-title">Salle des fêtes Catherine<br>(El Djenane)</h2>
+
+        <div class="location-stars" aria-label="4,5 étoiles">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path class="star-fill" d="M12 2.2l2.93 5.94 6.56.95-4.75 4.63 1.12 6.54L12 17.17l-5.86 3.09 1.12-6.54L2.51 9.09l6.56-.95L12 2.2z"/></svg>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path class="star-fill" d="M12 2.2l2.93 5.94 6.56.95-4.75 4.63 1.12 6.54L12 17.17l-5.86 3.09 1.12-6.54L2.51 9.09l6.56-.95L12 2.2z"/></svg>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path class="star-fill" d="M12 2.2l2.93 5.94 6.56.95-4.75 4.63 1.12 6.54L12 17.17l-5.86 3.09 1.12-6.54L2.51 9.09l6.56-.95L12 2.2z"/></svg>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path class="star-fill" d="M12 2.2l2.93 5.94 6.56.95-4.75 4.63 1.12 6.54L12 17.17l-5.86 3.09 1.12-6.54L2.51 9.09l6.56-.95L12 2.2z"/></svg>
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <defs><clipPath id="halfStar"><rect x="0" y="0" width="12" height="24"/></clipPath></defs>
+            <path class="star-half-base" d="M12 2.2l2.93 5.94 6.56.95-4.75 4.63 1.12 6.54L12 17.17l-5.86 3.09 1.12-6.54L2.51 9.09l6.56-.95L12 2.2z"/>
+            <path class="star-half-fill" clip-path="url(#halfStar)" d="M12 2.2l2.93 5.94 6.56.95-4.75 4.63 1.12 6.54L12 17.17l-5.86 3.09 1.12-6.54L2.51 9.09l6.56-.95L12 2.2z"/>
+          </svg>
+        </div>
+
+        <div class="location-rating">4,5 / 5</div>
+
+        <a class="location-btn" href="https://maps.app.goo.gl/8HyXr1tjfpMBKexK6" target="_blank" rel="noopener noreferrer" aria-label="Voir l’itinéraire sur Google Maps">
+          <span>Voir l’itinéraire</span>
+          <span class="location-btn-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M5 12h13"/><path d="M13 6l6 6-6 6"/></svg>
+          </span>
+        </a>
+      </div>
+    </section>
+
+    <!-- 4. NO PHOTOS / NO CHILDREN -->
+    <section class="request-section">
+      <div class="request-image-wrap">
+        <img
+          class="request-image"
+          src="no-photos-children.jpg"
+          alt="Pas de Photos et Pas d'enfants"
+          loading="lazy">
+      </div>
+    </section>
+
+    <!-- 5. RSVP -->
+    <section class="rsvp-section">
+      <div class="rsvp-card">
+
+        <div class="rsvp-heading">
+          <div class="section-kicker">Votre présence</div>
+          <h2 class="rsvp-title">Confirmation</h2>
+          <div class="rsvp-subtitle">Laissez également un message aux mariés</div>
+        </div>
+
+        <form id="rsvpForm">
+
+          <div class="field">
+            <label for="name">Nom complet</label>
+            <input id="name" name="name" type="text" autocomplete="name" required>
+          </div>
+
+          <div class="field">
+            <label for="guests">Nombre de personnes</label>
+            <select id="guests" name="guests" required>
+              <option value="">Choisir</option>
+              <option value="1">1 personne</option>
+              <option value="2">2 personnes</option>
+              <option value="3">3 personnes</option>
+              <option value="4">4 personnes</option>
+              <option value="5">5 personnes</option>
+              <option value="6">6 personnes</option>
+              <option value="7">7 personnes</option>
+              <option value="8">8 personnes</option>
+              <option value="9">9 personnes</option>
+              <option value="10">10 personnes</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="attendance">Confirmation de présence</label>
+            <select id="attendance" name="attendance" required>
+              <option value="">Choisir</option>
+              <option value="Oui">Oui, je serai présent(e)</option>
+              <option value="Non">Non, je ne pourrai pas venir</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="message">Message aux mariés</label>
+            <textarea id="message" name="message" placeholder="Écrivez un petit message..."></textarea>
+          </div>
+
+          <button class="submit-btn" id="submitBtn" type="submit">
+            Envoyer ma confirmation
+          </button>
+
+          <div id="rsvpMessage" aria-live="polite"></div>
+        </form>
+
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    /* =========================
+       CONFIGURATION
+    ========================= */
+
+    // Remplace cette URL par ton Google Apps Script lorsque tu voudras activer l'envoi.
+    const RSVP_URL = "https://script.google.com/macros/s/AKfycbymkutqDm0oLjId0jLHb83x8KgRIpKE6mCGycpXy3AQhS004_GFFUkdPxdkHGmh_0sq/exec";
+
+    // Date du mariage : 24 septembre 2026 à 17:00 (heure d'Algérie).
+    const weddingDate = new Date("2026-09-24T17:00:00+01:00");
+
+    /* =========================
+       ELEMENTS
+    ========================= */
+
+    const cover = document.getElementById("cover");
+    const invitation = document.getElementById("invitation");
+    const music = document.getElementById("backgroundMusic");
+    const musicControl = document.getElementById("musicControl");
+    const musicIconOn = document.getElementById("musicIconOn");
+    const musicIconOff = document.getElementById("musicIconOff");
+
+    const daysEl = document.getElementById("days");
+    const hoursEl = document.getElementById("hours");
+    const minutesEl = document.getElementById("minutes");
+    const secondsEl = document.getElementById("seconds");
+
+    let opened = false;
+
+    /* =========================
+       OPEN COVER
+    ========================= */
+
+    async function openInvitation(event){
+      if(opened) return;
+      opened = true;
+
+      // Release a small elegant burst of blue butterflies from the tap point.
+      createButterflyBurst(event);
+
+      // Music is intentionally started from the user's tap:
+      // this is the most reliable approach for iPhone Safari.
+      try{
+        music.volume = 1;
+        await music.play();
+        setMusicState(true);
+      }catch(error){
+        setMusicState(false);
+      }
+
+      cover.classList.add("is-opening");
+      invitation.classList.add("is-visible");
+      musicControl.classList.add("visible");
+
+      // Keep the beginning of the invitation at the top.
+      window.scrollTo({top:0, behavior:"auto"});
+    }
+
+
+    /* =========================
+       BUTTERFLY EFFECT
+    ========================= */
+
+    function createButterflyBurst(event){
+      const burst = document.createElement("div");
+      burst.className = "butterfly-burst";
+
+      const rect = cover.getBoundingClientRect();
+      let originX = rect.width / 2;
+      let originY = rect.height * 0.55;
+
+      if(event && typeof event.clientX === "number"){
+        originX = event.clientX;
+        originY = event.clientY;
+      }
+
+      burst.style.left = originX + "px";
+      burst.style.top = originY + "px";
+      document.body.appendChild(burst);
+
+      const count = 15;
+      for(let i = 0; i < count; i++){
+        const butterfly = document.createElement("span");
+        butterfly.className = "butterfly";
+
+        const angle = (Math.PI * 2 * i / count) + (Math.random() - .5) * .45;
+        const distance = 95 + Math.random() * 185;
+        const x = Math.cos(angle) * distance;
+        const y = Math.sin(angle) * distance - 55 - Math.random() * 85;
+
+        butterfly.style.setProperty("--x", x.toFixed(1) + "px");
+        butterfly.style.setProperty("--y", y.toFixed(1) + "px");
+        butterfly.style.setProperty("--d", (1.15 + Math.random() * .75).toFixed(2) + "s");
+        butterfly.style.setProperty("--r", ((Math.random() * 50) - 25).toFixed(1) + "deg");
+        butterfly.style.animationDelay = (Math.random() * .12).toFixed(2) + "s";
+
+        const body = document.createElement("span");
+        body.className = "body";
+        butterfly.appendChild(body);
+        burst.appendChild(butterfly);
+      }
+
+      setTimeout(()=>burst.remove(),2200);
+    }
+
+    cover.addEventListener("click", openInvitation, {passive:true});
+    cover.addEventListener("touchend", openInvitation, {passive:true});
+
+    /* =========================
+       MUSIC CONTROL
+    ========================= */
+
+    function setMusicState(isPlaying){
+      if(isPlaying){
+        musicControl.classList.add("playing");
+        musicControl.setAttribute("aria-label","Mettre la musique en pause");
+      }else{
+        musicControl.classList.remove("playing");
+        musicControl.setAttribute("aria-label","Lire la musique");
+      }
+    }
+
+    musicControl.addEventListener("click", async function(){
+      if(music.paused){
+        try{
+          await music.play();
+          setMusicState(true);
+        }catch(error){}
+      }else{
+        music.pause();
+        setMusicState(false);
+      }
+    });
+
+    music.addEventListener("play",()=>setMusicState(true));
+    music.addEventListener("pause",()=>setMusicState(false));
+
+    /* =========================
+       COUNTDOWN
+    ========================= */
+
+    function pad(number){
+      return String(number).padStart(2,"0");
+    }
+
+    function updateCountdown(){
+      const now = new Date();
+      let difference = weddingDate.getTime() - now.getTime();
+
+      if(difference <= 0){
+        daysEl.textContent = "00";
+        hoursEl.textContent = "00";
+        minutesEl.textContent = "00";
+        secondsEl.textContent = "00";
+        return;
+      }
+
+      const totalSeconds = Math.floor(difference / 1000);
+
+      const days = Math.floor(totalSeconds / 86400);
+      const hours = Math.floor((totalSeconds % 86400) / 3600);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+      const seconds = totalSeconds % 60;
+
+      daysEl.textContent = pad(days);
+      hoursEl.textContent = pad(hours);
+      minutesEl.textContent = pad(minutes);
+      secondsEl.textContent = pad(seconds);
+    }
+
+    updateCountdown();
+    setInterval(updateCountdown,1000);
+
+    /* =========================
+       RSVP
+    ========================= */
+
+    const rsvpForm = document.getElementById("rsvpForm");
+    const submitBtn = document.getElementById("submitBtn");
+    const rsvpMessage = document.getElementById("rsvpMessage");
+
+    rsvpForm.addEventListener("submit", async function(event){
+      event.preventDefault();
+
+      if(!RSVP_URL){
+        rsvpMessage.textContent =
+          "Le formulaire est prêt. Ajoutez votre lien Google Sheets pour activer l’envoi.";
+        return;
+      }
+
+      submitBtn.disabled = true;
+      rsvpMessage.textContent = "Envoi en cours…";
+
+      const data = {
+        name: document.getElementById("name").value.trim(),
+        guests: document.getElementById("guests").value,
+        attendance: document.getElementById("attendance").value,
+        message: document.getElementById("message").value.trim(),
+        date: new Date().toISOString()
+      };
+
+      try{
+        await fetch(RSVP_URL,{
+          method:"POST",
+          mode:"no-cors",
+          headers:{
+            "Content-Type":"text/plain;charset=utf-8"
+          },
+          body:JSON.stringify(data)
+        });
+
+        rsvpMessage.textContent = "Merci ! Votre confirmation a bien été envoyée.";
+        rsvpForm.reset();
+      }catch(error){
+        rsvpMessage.textContent =
+          "Une erreur est survenue. Veuillez réessayer.";
+      }finally{
+        submitBtn.disabled = false;
+      }
+    });
+  </script>
+
+</body>
+</html>
