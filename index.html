@@ -571,6 +571,71 @@
       line-height:1.9;
     }
 
+
+    /* =========================
+       FINAL MESSAGE
+    ========================= */
+    .final-message-section{
+      width:100%;
+      padding:10px 18px 38px;
+      background:var(--ivory);
+    }
+
+    .final-message-card{
+      width:min(620px,100%);
+      margin:auto;
+      min-height:190px;
+      padding:42px 28px;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      position:relative;
+      overflow:hidden;
+      border:1px solid rgba(255,255,255,.35);
+      border-radius:30px;
+      background:linear-gradient(145deg,#183b63,#234f7b);
+      box-shadow:0 14px 36px rgba(24,59,99,.18);
+    }
+
+    .final-message-card::before,
+    .final-message-card::after{
+      content:"";
+      position:absolute;
+      width:110px;
+      height:110px;
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:50%;
+      pointer-events:none;
+    }
+
+    .final-message-card::before{left:-55px;top:-55px}
+    .final-message-card::after{right:-55px;bottom:-55px}
+
+    .final-message-ornament{
+      color:#f4e4bd;
+      font-family:"Cormorant Garamond",serif;
+      font-size:27px;
+      line-height:1;
+      margin-bottom:15px;
+    }
+
+    .final-message-card p{
+      max-width:520px;
+      color:#fff;
+      font-family:"Cormorant Garamond",serif;
+      font-size:clamp(25px,7vw,38px);
+      line-height:1.25;
+      font-weight:500;
+      letter-spacing:.01em;
+    }
+
+    .final-message-card p span{
+      color:#f4e4bd;
+      white-space:nowrap;
+    }
+
     /* =========================
        RSVP
     ========================= */
@@ -728,7 +793,7 @@
       <div class="countdown-inner">
         <div class="section-kicker">Le grand jour</div>
         <h1 class="countdown-title">Compte à rebours</h1>
-        <div class="countdown-date">24 septembre 2026 · 17:00</div>
+        <div class="countdown-date">3 octobre 2026 · 14:00</div>
 
         <div class="timer" aria-label="Compte à rebours">
           <div class="timer-box">
@@ -753,7 +818,20 @@
 
 
 
-    <!-- 3. LOCATION -->
+    <!-- 3. NO PHOTOS / NO CHILDREN -->
+    <section class="request-section">
+      <div class="request-image-wrap">
+        <img
+          class="request-image"
+          src="no-photos-children.jpg"
+          alt="Pas de Photos et Pas d'enfants"
+          loading="lazy">
+      </div>
+    </section>
+
+
+
+    <!-- 4. LOCATION -->
     <section class="location-section">
       <div class="location-card">
 
@@ -798,14 +876,11 @@
       </div>
     </section>
 
-    <!-- 4. NO PHOTOS / NO CHILDREN -->
-    <section class="request-section">
-      <div class="request-image-wrap">
-        <img
-          class="request-image"
-          src="no-photos-children.jpg"
-          alt="Pas de Photos et Pas d'enfants"
-          loading="lazy">
+    <!-- 5. FINAL MESSAGE -->
+    <section class="final-message-section">
+      <div class="final-message-card">
+        <div class="final-message-ornament">♡</div>
+        <p>Votre présence sera notre plus beau cadeau <span>♡</span></p>
       </div>
     </section>
 
@@ -877,8 +952,8 @@
     // Remplace cette URL par ton Google Apps Script lorsque tu voudras activer l'envoi.
     const RSVP_URL = "https://script.google.com/macros/s/AKfycbymkutqDm0oLjId0jLHb83x8KgRIpKE6mCGycpXy3AQhS004_GFFUkdPxdkHGmh_0sq/exec";
 
-    // Date du mariage : 24 septembre 2026 à 17:00 (heure d'Algérie).
-    const weddingDate = new Date("2026-09-24T17:00:00+01:00");
+    // Date du mariage : 3 octobre 2026 à 14:00 (heure d'Algérie).
+    const weddingDate = new Date("2026-10-03T14:00:00+01:00");
 
     /* =========================
        ELEMENTS
