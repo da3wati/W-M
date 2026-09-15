@@ -636,100 +636,6 @@
       white-space:nowrap;
     }
 
-    /* =========================
-       RSVP
-    ========================= */
-    .rsvp-section{
-      width:100%;
-      padding:20px 18px 90px;
-      background:var(--ivory);
-    }
-
-    .rsvp-card{
-      width:min(620px,100%);
-      margin:auto;
-      padding:48px 22px;
-      border:1px solid rgba(24,59,99,.22);
-      background:rgba(255,255,255,.35);
-    }
-
-    .rsvp-heading{
-      text-align:center;
-      margin-bottom:30px;
-    }
-
-    .rsvp-title{
-      font-family:"Cormorant Garamond",serif;
-      color:var(--blue);
-      font-size:42px;
-      font-weight:500;
-    }
-
-    .rsvp-subtitle{
-      margin-top:7px;
-      color:var(--blue-soft);
-      font-size:11px;
-      letter-spacing:.08em;
-    }
-
-    .field{margin-bottom:17px}
-
-    .field label{
-      display:block;
-      margin-bottom:7px;
-      color:var(--blue);
-      font-size:11px;
-      letter-spacing:.04em;
-    }
-
-    .field input,
-    .field select,
-    .field textarea{
-      width:100%;
-      border:1px solid rgba(24,59,99,.25);
-      border-radius:0;
-      outline:none;
-      background:rgba(255,255,255,.65);
-      color:var(--text);
-      padding:13px 14px;
-      font-size:13px;
-      transition:border-color .25s,box-shadow .25s;
-    }
-
-    .field textarea{
-      min-height:120px;
-      resize:vertical;
-    }
-
-    .field input:focus,
-    .field select:focus,
-    .field textarea:focus{
-      border-color:var(--blue);
-      box-shadow:0 0 0 3px rgba(24,59,99,.07);
-    }
-
-    .submit-btn{
-      width:100%;
-      margin-top:7px;
-      padding:14px;
-      border:1px solid var(--blue);
-      background:var(--blue);
-      color:#fff;
-      cursor:pointer;
-      letter-spacing:.06em;
-      transition:transform .2s,opacity .2s;
-    }
-
-    .submit-btn:active{transform:scale(.985)}
-    .submit-btn:disabled{opacity:.55}
-
-    #rsvpMessage{
-      min-height:20px;
-      margin-top:15px;
-      text-align:center;
-      color:var(--blue);
-      font-size:12px;
-    }
 
     /* =========================
        MOBILE SAFARI
@@ -884,63 +790,6 @@
       </div>
     </section>
 
-    <!-- 5. RSVP -->
-    <section class="rsvp-section">
-      <div class="rsvp-card">
-
-        <div class="rsvp-heading">
-          <div class="section-kicker">Votre présence</div>
-          <h2 class="rsvp-title">Confirmation</h2>
-          <div class="rsvp-subtitle">Laissez également un message aux mariés</div>
-        </div>
-
-        <form id="rsvpForm">
-
-          <div class="field">
-            <label for="name">Nom complet</label>
-            <input id="name" name="name" type="text" autocomplete="name" required>
-          </div>
-
-          <div class="field">
-            <label for="guests">Nombre de personnes</label>
-            <select id="guests" name="guests" required>
-              <option value="">Choisir</option>
-              <option value="1">1 personne</option>
-              <option value="2">2 personnes</option>
-              <option value="3">3 personnes</option>
-              <option value="4">4 personnes</option>
-              <option value="5">5 personnes</option>
-              <option value="6">6 personnes</option>
-              <option value="7">7 personnes</option>
-              <option value="8">8 personnes</option>
-              <option value="9">9 personnes</option>
-              <option value="10">10 personnes</option>
-            </select>
-          </div>
-
-          <div class="field">
-            <label for="attendance">Confirmation de présence</label>
-            <select id="attendance" name="attendance" required>
-              <option value="">Choisir</option>
-              <option value="Oui">Oui, je serai présent(e)</option>
-              <option value="Non">Non, je ne pourrai pas venir</option>
-            </select>
-          </div>
-
-          <div class="field">
-            <label for="message">Message aux mariés</label>
-            <textarea id="message" name="message" placeholder="Écrivez un petit message..."></textarea>
-          </div>
-
-          <button class="submit-btn" id="submitBtn" type="submit">
-            Envoyer ma confirmation
-          </button>
-
-          <div id="rsvpMessage" aria-live="polite"></div>
-        </form>
-
-      </div>
-    </section>
 
   </main>
 
@@ -948,9 +797,6 @@
     /* =========================
        CONFIGURATION
     ========================= */
-
-    // Remplace cette URL par ton Google Apps Script lorsque tu voudras activer l'envoi.
-    const RSVP_URL = "https://script.google.com/macros/s/AKfycbymkutqDm0oLjId0jLHb83x8KgRIpKE6mCGycpXy3AQhS004_GFFUkdPxdkHGmh_0sq/exec";
 
     // Date du mariage : 3 octobre 2026 à 14:00 (heure d'Algérie).
     const weddingDate = new Date("2026-10-03T14:00:00+01:00");
@@ -1117,53 +963,6 @@
     updateCountdown();
     setInterval(updateCountdown,1000);
 
-    /* =========================
-       RSVP
-    ========================= */
-
-    const rsvpForm = document.getElementById("rsvpForm");
-    const submitBtn = document.getElementById("submitBtn");
-    const rsvpMessage = document.getElementById("rsvpMessage");
-
-    rsvpForm.addEventListener("submit", async function(event){
-      event.preventDefault();
-
-      if(!RSVP_URL){
-        rsvpMessage.textContent =
-          "Le formulaire est prêt. Ajoutez votre lien Google Sheets pour activer l’envoi.";
-        return;
-      }
-
-      submitBtn.disabled = true;
-      rsvpMessage.textContent = "Envoi en cours…";
-
-      const data = {
-        name: document.getElementById("name").value.trim(),
-        guests: document.getElementById("guests").value,
-        attendance: document.getElementById("attendance").value,
-        message: document.getElementById("message").value.trim(),
-        date: new Date().toISOString()
-      };
-
-      try{
-        await fetch(RSVP_URL,{
-          method:"POST",
-          mode:"no-cors",
-          headers:{
-            "Content-Type":"text/plain;charset=utf-8"
-          },
-          body:JSON.stringify(data)
-        });
-
-        rsvpMessage.textContent = "Merci ! Votre confirmation a bien été envoyée.";
-        rsvpForm.reset();
-      }catch(error){
-        rsvpMessage.textContent =
-          "Une erreur est survenue. Veuillez réessayer.";
-      }finally{
-        submitBtn.disabled = false;
-      }
-    });
   </script>
 
 </body>
